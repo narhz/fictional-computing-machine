@@ -68,10 +68,18 @@ def gen_account_creds():
     with open('short_words.json', 'r') as file:
         words = json.load()
 
+    user_name_opts = {
+        'camel_case': choice(words) + choice(words).title(),
+        'camel_case_num': choice(words) + choice(words).title + str(randint(0, 5000),
+        'flat_num': choice(words) + str(randint(0, 50000)),
+        'upper': choice(words).upper() + str(randint(0, 50000)),
+        'upper_lower': choice(words).upper + choice(words)
+    }
+
     account = {
         'email': session.get_session_state()['email_address'],
         'pass': token_urlsafe(16),
-        'user': user_name
+        'user': user_name_opts[choice(list(user_name_opts.keys()))]
     }
 
     return account
