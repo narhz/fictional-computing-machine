@@ -10,6 +10,7 @@ import os
 
 from time import sleep
 from random import randint
+from secrets import token_urlsafe
 
 from constants import Urls, Paths, Elements
 
@@ -19,6 +20,7 @@ from constants import Urls, Paths, Elements
 URLS = Urls()
 PATHS = Paths()
 ELEMENTS = Elements()
+
 
 
 def get_proxies():
@@ -35,13 +37,6 @@ def get_proxies():
 
     return proxy_addrs
 
-
-def gen_email():
-    session = GuerrillaMailSession()
-    print(session.get_session_state()['email_address'])
-    for email_id in session.get_email_list():
-        print(session.get_email(email_id.guid).subject)
-        print(session.get_email(email_id.guid).body)
 
 
 def test_proxies():
@@ -63,46 +58,69 @@ def test_proxies():
 
 
 
+def gen_account_creds():
+    session = GuerrillaMailSession()
 
-class Driver:
-    def __init__(self):
-        options = Options()
-        options.headless = False
+    account = {
+        'email': session.get_session_state()['email_address'],
+        'pass': token_urlsafe(16)
+    }
 
-        self.driver_path = PATHS.DRIVER_PATH
+    return account
 
-        proxy_addrs = test_proxies()
-
-        for proxy in proxy_addrs:
-            PROXY = proxy.replace('\n', '')
-            webdriver.DesiredCapabilities.FIREFOX['proxy']={
-                "httpProxy":PROXY,
-                "ftpProxy":PROXY,
-                "sslProxy":PROXY,
-                "proxyType":"MANUAL",
-            }
-
-            driver = webdriver.Firefox(executable_path=self.driver_path, options=options)
-            driver.set_page_load_timeout(10)
-            try:
-                driver.get('https://old.reddit.com')
-
-                sign_up = driver.find_element_by_xpath('//*[@id="header-bottom-right"]/span[1]/a[2]')
-                driver.click(sign_up)
+    # print(session.get_session_state()['email_address'])
+    # for email_id in session.get_email_list():
+    #     print(session.get_email(email_id.guid).subject)
+    #     print(session.get_email(email_id.guid).body)
 
 
 
-                sleep(10)
-                driver.close()
-            except:
-                driver.close()
+def create_account():
+    options = Options()
+    options.headless = False
+
+    proxy_addrs = test_proxies()
+
+    for proxy in proxy_addrs:
+        webdriver.DesiredCapabilitis.getcwd() + '/geckodriver'es.FIREFOX['proxy']={
+            "httpProxy":proxy,
+            "ftpProxy":proxy,
+            "sslProxy":proxy,
+            "proxyType":"MANUAL",
+        }
+
+        driver = webdriver.Firefox(executable_path=PATHS.DRIVER_PATH, options=options)
+        # driver.set_page_load_timeout(10)
+        driver.get(URLS.REGESTER)
+        sleep(5)
+        driver.close()
+
+
+
+# class Driver:
+#     def __init__(self):
+#
+#
+#
+#             try:
+#                 driver.get('https://old.reddit.com')
+#
+#                 sign_up = driver.find_element_by_xpath('//*[@id="header-bottom-right"]/span[1]/a[2]')
+#                 driver.click(sign_up)
+#
+#
+#
+#                 sleep(10)
+#                 driver.close()
+#             except:
+#                 driver.close()
 
 
 
 
 
 if __name__ == '__main__':
-    print(URLS.PROXIES)
+    print(gen_account()
 
 
 
