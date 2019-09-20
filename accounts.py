@@ -11,12 +11,19 @@ import os
 from time import sleep
 from random import randint
 
+from constants import Urls, Paths, Elements
 
+
+
+
+URLS = Urls()
+PATHS = Paths()
+ELEMENTS = Elements()
 
 
 def get_proxies():
     print('Getting proxy list...\n')
-    req = requests.get('https://api.proxyscrape.com/?request=getproxies&proxytype=http&timeout=10000&country=all&ssl=all&anonymity=all').content
+    req = requests.get(URLS.PROXIES).content
     with open('proxy_list.txt', 'wb') as file:
         file.write(req)
 
@@ -46,7 +53,7 @@ def test_proxies():
         proxy = proxy_addrs[randint(0, len(proxy_addrs))].replace('\n', '')
 
         try:
-            req = requests.get('https://api.ipify.org', proxies = {'http': proxy, 'https': proxy}, timeout=5).text
+            req = requests.get(URLS.IP_CHECK, proxies = {'http': proxy, 'https': proxy}, timeout=5).text
             active_proxies.append(proxy)
             count += 1
         except:
@@ -62,7 +69,7 @@ class Driver:
         options = Options()
         options.headless = False
 
-        self.driver_path = os.getcwd() + '/geckodriver'
+        self.driver_path = PATHS.DRIVER_PATH
 
         proxy_addrs = test_proxies()
 
@@ -95,7 +102,7 @@ class Driver:
 
 
 if __name__ == '__main__':
-    print(test_proxies())
+    print(URLS.PROXIES)
 
 
 
