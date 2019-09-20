@@ -17,4 +17,7 @@ class Paths:
 
 
 class Elements:
-    pass
+    def __init__(self):
+        self.EMAIL_FIELD = '//*[@id="regEmail"]'
+        self.USER_FIELD = '//*[@id="regUsername"]'
+        self.PASS_FIELD = '//*[@id="regPassword"]'
