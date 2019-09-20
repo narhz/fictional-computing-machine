@@ -24,15 +24,37 @@ def get_proxies():
         proxy_addrs = file.readlines()
 
     print('Done.')
+
+
     return proxy_addrs
 
 
-def mail():
+def gen_email():
     session = GuerrillaMailSession()
     print(session.get_session_state()['email_address'])
     for email_id in session.get_email_list():
         print(session.get_email(email_id.guid).subject)
         print(session.get_email(email_id.guid).body)
+
+
+def test_proxies():
+    proxy_addrs = get_proxies()
+
+    count = 0
+    active_proxies = []
+    while count != 10:
+        proxy = proxy_addrs[randint(0, len(proxy_addrs))].replace('\n', '')
+
+        try:
+            req = requests.get('https://api.ipify.org', proxies = {'http': proxy, 'https': proxy}, timeout=5).text
+            active_proxies.append(proxy)
+            count += 1
+        except:
+            pass
+
+    return active_proxies
+
+
 
 
 class Driver:
@@ -42,7 +64,7 @@ class Driver:
 
         self.driver_path = os.getcwd() + '/geckodriver'
 
-        proxy_addrs = get_proxies()
+        proxy_addrs = test_proxies()
 
         for proxy in proxy_addrs:
             PROXY = proxy.replace('\n', '')
@@ -73,7 +95,7 @@ class Driver:
 
 
 if __name__ == '__main__':
-    mail()
+    print(test_proxies())
 
 
 
