@@ -43,16 +43,16 @@ def get_proxies():
 
 
 
-def test_proxies():
+def test_proxies(amount):
     proxy_addrs = get_proxies()
 
     count = 0
     active_proxies = []
-    while count != 2:
+    while count != amount:
         proxy = proxy_addrs[randint(0, len(proxy_addrs))].replace('\n', '')
 
         try:
-            req = requests.get(URLS.IP_CHECK, proxies = {'http': proxy, 'https': proxy}, timeout=5).text
+            req = requests.get(URLS.OLD_REDDIT, proxies = {'http': proxy, 'https': proxy}, timeout=1).text
             active_proxies.append(proxy)
             count += 1
             print(f'found {count} active')
@@ -66,14 +66,14 @@ def test_proxies():
 def gen_account_creds():
     session = GuerrillaMailSession()
     with open('short_words.json', 'r') as file:
-        words = json.load()
+        words = json.load(file)
 
     user_name_opts = {
         'camel_case': choice(words) + choice(words).title(),
-        'camel_case_num': choice(words) + choice(words).title + str(randint(0, 5000),
+        'camel_case_num': choice(words) + choice(words).title() + str(randint(0, 5000)),
         'flat_num': choice(words) + str(randint(0, 50000)),
         'upper': choice(words).upper() + str(randint(0, 50000)),
-        'upper_lower': choice(words).upper + choice(words)
+        'upper_lower': choice(words).upper() + choice(words)
     }
 
     account = {
@@ -90,21 +90,22 @@ def create_account():
     options = Options()
     options.headless = False
 
-    proxy_addrs = test_proxies()
+    proxy_addrs = test_proxies(10)
 
     for proxy in proxy_addrs:
-        webdriver.DesiredCapabilities.FIREFOX['proxy']={
-            "httpProxy":proxy,
-            "ftpProxy":proxy,
-            "sslProxy":proxy,
-            "proxyType":"MANUAL",
-        }
-
-        account = gen_account_creds()
-
-        driver = webdriver.Firefox(executable_path=PATHS.DRIVER_PATH, options=options)
-        driver.set_page_load_timeout(40)
         try:
+            webdriver.DesiredCapabilities.FIREFOX['proxy']={
+                "httpProxy":proxy,
+                "ftpProxy":proxy,
+                "sslProxy":proxy,
+                "proxyType":"MANUAL",
+            }
+
+            account = gen_account_creds()
+
+            driver = webdriver.Firefox(executable_path=PATHS.DRIVER_PATH, options=options)
+            driver.set_page_load_timeout(20)
+
             driver.get(URLS.REGESTER)
 
             email = driver.find_element_by_xpath(ELEMENTS.EMAIL_FIELD)
@@ -117,16 +118,20 @@ def create_account():
             pass_field = driver.find_element_by_xpath(ELEMENTS.PASS_FIELD)
             pass_field.send_keys(account['pass'])
 
+            print(f'Created {account["user"]}, using {proxy}')
+
             sleep(5)
             driver.close()
         except:
             driver.close()
+            print('Timed out... Getting new proxy.')
+            proxy_addrs.append(test_proxies(1))
             pass
 
 
 
 if __name__ == '__main__':
-    pass
+    create_account()
 
 
 # /html/body/div[1]/div/div[2]/div/form/div[3]/div[2]/div[2]/div/div/a[1]
